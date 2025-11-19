@@ -1,432 +1,528 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 
-const productCategories = [
-  { id: 'all', name: 'Все приборы', icon: 'Layers' },
-  { id: 'multimeter', name: 'Мультиметры', icon: 'Gauge' },
-  { id: 'manometer', name: 'Манометры', icon: 'CircleGauge' },
-  { id: 'oscilloscope', name: 'Осциллографы', icon: 'Activity' },
-  { id: 'thermometer', name: 'Термометры', icon: 'Thermometer' },
-];
+type ListingType = 'product' | 'service';
 
-const products = [
+interface Review {
+  id: number;
+  author: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  text: string;
+}
+
+interface Listing {
+  id: number;
+  type: ListingType;
+  title: string;
+  price: string;
+  category: string;
+  location: string;
+  seller: {
+    name: string;
+    avatar: string;
+    rating: number;
+    reviewsCount: number;
+  };
+  image: string;
+  description: string;
+  views: number;
+  postedDate: string;
+  reviews: Review[];
+}
+
+const listings: Listing[] = [
   {
     id: 1,
-    name: 'Мультиметр DT-830B',
-    category: 'multimeter',
-    price: '1 250 ₽',
-    description: 'Цифровой мультиметр для измерения напряжения, тока и сопротивления',
-    specs: ['Точность ±0.5%', 'LCD дисплей', 'Авто-выключение'],
+    type: 'product',
+    title: 'Мультиметр Fluke 87V',
+    price: '45 000 ₽',
+    category: 'Мультиметры',
+    location: 'Москва',
+    seller: {
+      name: 'Александр Петров',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+      rating: 4.8,
+      reviewsCount: 24,
+    },
     image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/b2cd46f3-b239-4b5c-b0f0-bbb4c04d12a5.jpg',
-    inStock: true,
+    description: 'Профессиональный мультиметр в отличном состоянии. Поверка действительна до 2025 года. В комплекте чехол и щупы.',
+    views: 156,
+    postedDate: '2 дня назад',
+    reviews: [
+      {
+        id: 1,
+        author: 'Иван Сидоров',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 5,
+        date: '15.11.2024',
+        text: 'Отличный прибор! Продавец быстро отправил, всё упаковано надёжно. Поверочное свидетельство в порядке.',
+      },
+      {
+        id: 2,
+        author: 'Мария Козлова',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+        rating: 5,
+        date: '10.11.2024',
+        text: 'Покупали для лаборатории. Всё работает идеально, калибровка в норме.',
+      },
+    ],
   },
   {
     id: 2,
-    name: 'Манометр МП-100',
-    category: 'manometer',
-    price: '2 800 ₽',
-    description: 'Манометр технический для измерения давления газов и жидкостей',
-    specs: ['Диапазон 0-10 бар', 'Класс точности 1.5', 'Диаметр 100 мм'],
+    type: 'service',
+    title: 'Поверка манометров и термометров',
+    price: 'от 500 ₽',
+    category: 'Услуги поверки',
+    location: 'Санкт-Петербург',
+    seller: {
+      name: 'Елена Смирнова',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+      rating: 4.9,
+      reviewsCount: 47,
+    },
     image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/6b89cfaa-d9cc-4132-a601-d05ac20c268f.jpg',
-    inStock: true,
+    description: 'Аккредитованная лаборатория. Поверка манометров, термометров, барометров. Выдача свидетельств Росаккредитации. Выезд на объект.',
+    views: 342,
+    postedDate: '1 неделю назад',
+    reviews: [
+      {
+        id: 3,
+        author: 'Дмитрий Волков',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 5,
+        date: '12.11.2024',
+        text: 'Быстро поверили все манометры на производстве. Документы оформили в день обращения. Рекомендую!',
+      },
+      {
+        id: 4,
+        author: 'Ольга Новикова',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+        rating: 5,
+        date: '08.11.2024',
+        text: 'Профессиональный подход, адекватные цены. Работаем постоянно.',
+      },
+      {
+        id: 5,
+        author: 'Сергей Борисов',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 4,
+        date: '01.11.2024',
+        text: 'Хорошая лаборатория, но немного дороже конкурентов. Зато качество на высоте.',
+      },
+    ],
   },
   {
     id: 3,
-    name: 'Осциллограф DSO-2250',
-    category: 'oscilloscope',
-    price: '45 500 ₽',
-    description: 'Цифровой осциллограф с двумя каналами для анализа сигналов',
-    specs: ['Полоса 250 МГц', '2 канала', 'Память 4 Мб'],
+    type: 'product',
+    title: 'Осциллограф Tektronix TDS2024B',
+    price: '95 000 ₽',
+    category: 'Осциллографы',
+    location: 'Екатеринбург',
+    seller: {
+      name: 'Виктор Игнатьев',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+      rating: 4.7,
+      reviewsCount: 18,
+    },
     image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/f1284047-3a52-40ee-9dce-8687f2df9391.jpg',
-    inStock: true,
+    description: 'Цифровой осциллограф 4 канала, 200 МГц. Состояние хорошее, использовался в учебной лаборатории. Торг.',
+    views: 89,
+    postedDate: '3 дня назад',
+    reviews: [
+      {
+        id: 6,
+        author: 'Анна Федорова',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+        rating: 5,
+        date: '14.11.2024',
+        text: 'Прибор полностью соответствует описанию. Продавец помог с настройкой.',
+      },
+    ],
   },
   {
     id: 4,
-    name: 'Термометр ТЦ-100',
-    category: 'thermometer',
-    price: '890 ₽',
-    description: 'Цифровой термометр с выносным датчиком',
-    specs: ['Диапазон -50...+200°C', 'LCD дисплей', 'Водонепроницаемый датчик'],
-    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/b2cd46f3-b239-4b5c-b0f0-bbb4c04d12a5.jpg',
-    inStock: false,
+    type: 'service',
+    title: 'Калибровка весов и дозаторов',
+    price: 'от 1 200 ₽',
+    category: 'Услуги поверки',
+    location: 'Казань',
+    seller: {
+      name: 'Татьяна Морозова',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+      rating: 5.0,
+      reviewsCount: 63,
+    },
+    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/6b89cfaa-d9cc-4132-a601-d05ac20c268f.jpg',
+    description: 'Аттестованный специалист. Поверка и калибровка весов любого класса точности. Работаем с юридическими и физическими лицами.',
+    views: 521,
+    postedDate: '2 недели назад',
+    reviews: [
+      {
+        id: 7,
+        author: 'Игорь Кузнецов',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 5,
+        date: '16.11.2024',
+        text: 'Откалибровали все весы на складе. Работа выполнена качественно и в срок.',
+      },
+      {
+        id: 8,
+        author: 'Наталья Соколова',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+        rating: 5,
+        date: '09.11.2024',
+        text: 'Профессионал своего дела! Всё понятно объяснила, дала рекомендации.',
+      },
+    ],
   },
   {
     id: 5,
-    name: 'Мультиметр UT61E',
-    category: 'multimeter',
-    price: '3 200 ₽',
-    description: 'Профессиональный цифровой мультиметр с автоматическим выбором диапазона',
-    specs: ['True RMS', 'RS-232 интерфейс', 'Память на 80 значений'],
-    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/b2cd46f3-b239-4b5c-b0f0-bbb4c04d12a5.jpg',
-    inStock: true,
+    type: 'product',
+    title: 'Манометр цифровой ДМ5002М',
+    price: '8 500 ₽',
+    category: 'Манометры',
+    location: 'Новосибирск',
+    seller: {
+      name: 'Андрей Васильев',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+      rating: 4.6,
+      reviewsCount: 12,
+    },
+    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/6b89cfaa-d9cc-4132-a601-d05ac20c268f.jpg',
+    description: 'Новый цифровой манометр класса точности 0.25. Диапазон измерений 0-100 бар. Гарантия 1 год.',
+    views: 67,
+    postedDate: '5 дней назад',
+    reviews: [
+      {
+        id: 9,
+        author: 'Павел Романов',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 4,
+        date: '13.11.2024',
+        text: 'Хороший манометр за свои деньги. Точность соответствует заявленной.',
+      },
+    ],
   },
   {
     id: 6,
-    name: 'Манометр электроконтактный ДМ-2005',
-    category: 'manometer',
-    price: '5 600 ₽',
-    description: 'Электроконтактный манометр для систем автоматического управления',
-    specs: ['Диапазон 0-16 бар', 'Контакты 220В 1А', 'Класс точности 1.0'],
-    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/6b89cfaa-d9cc-4132-a601-d05ac20c268f.jpg',
-    inStock: true,
+    type: 'service',
+    title: 'Поверка электросчётчиков',
+    price: 'от 350 ₽',
+    category: 'Услуги поверки',
+    location: 'Москва',
+    seller: {
+      name: 'Михаил Лебедев',
+      avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+      rating: 4.8,
+      reviewsCount: 91,
+    },
+    image: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/b2cd46f3-b239-4b5c-b0f0-bbb4c04d12a5.jpg',
+    description: 'Поверка электросчётчиков на дому и в лаборатории. Все виды счётчиков. Внесение данных в ФГИС "Аршин".',
+    views: 678,
+    postedDate: '1 месяц назад',
+    reviews: [
+      {
+        id: 10,
+        author: 'Светлана Попова',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/675fdc8f-affd-4854-8dfa-2f2aa8f7fe68.jpg',
+        rating: 5,
+        date: '17.11.2024',
+        text: 'Приехал вовремя, поверил счётчик за 20 минут. Всё чётко!',
+      },
+      {
+        id: 11,
+        author: 'Владимир Орлов',
+        avatar: 'https://cdn.poehali.dev/projects/8ab3713d-d41c-4052-8b9b-15cb6ebbb7a6/files/d212f008-1a24-46c6-8c15-4bd318613695.jpg',
+        rating: 5,
+        date: '05.11.2024',
+        text: 'Отличный специалист! Рекомендую.',
+      },
+    ],
   },
 ];
 
-export default function Index() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+const categories = ['Все категории', 'Мультиметры', 'Манометры', 'Осциллографы', 'Услуги поверки'];
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Icon
+          key={star}
+          name="Star"
+          size={14}
+          className={star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function Index() {
+  const [selectedType, setSelectedType] = useState<'all' | ListingType>('all');
+  const [selectedCategory, setSelectedCategory] = useState('Все категории');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedReviews, setExpandedReviews] = useState<number[]>([]);
+
+  const toggleReviews = (listingId: number) => {
+    setExpandedReviews(prev =>
+      prev.includes(listingId) 
+        ? prev.filter(id => id !== listingId)
+        : [...prev, listingId]
+    );
+  };
+
+  const filteredListings = listings.filter(listing => {
+    const matchesType = selectedType === 'all' || listing.type === selectedType;
+    const matchesCategory = selectedCategory === 'Все категории' || listing.category === selectedCategory;
+    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      listing.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesCategory && matchesSearch;
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-muted/30">
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
               <Icon name="Gauge" size={32} className="text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">ИзмериТех</h1>
-                <p className="text-xs text-muted-foreground">Измерительное оборудование</p>
+                <h1 className="text-xl font-bold text-primary">МетроМаркет</h1>
+                <p className="text-xs text-muted-foreground">Метрология и поверка</p>
               </div>
             </div>
-            <nav className="hidden md:flex gap-6">
-              <a href="#catalog" className="text-sm font-medium hover:text-primary transition-colors">Каталог</a>
-              <a href="#about" className="text-sm font-medium hover:text-primary transition-colors">О компании</a>
-              <a href="#services" className="text-sm font-medium hover:text-primary transition-colors">Услуги</a>
-              <a href="#contacts" className="text-sm font-medium hover:text-primary transition-colors">Контакты</a>
-            </nav>
-            <Button className="hidden md:flex gap-2">
-              <Icon name="ShoppingCart" size={18} />
-              Корзина
+            <div className="flex-1 max-w-2xl">
+              <div className="relative">
+                <Icon name="Search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  type="text"
+                  placeholder="Поиск приборов и услуг..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-gray-50"
+                />
+              </div>
+            </div>
+            <Button className="gap-2">
+              <Icon name="Plus" size={18} />
+              Подать объявление
             </Button>
           </div>
         </div>
       </header>
 
-      <section className="py-20 bg-gradient-to-br from-primary/5 to-secondary/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center animate-fade-in">
-            <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20">
-              Профессиональное оборудование
-            </Badge>
-            <h2 className="text-5xl font-bold mb-6 text-foreground">
-              Измерительные приборы <br />
-              <span className="text-primary">для профессионалов</span>
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Широкий ассортимент средств измерений и вспомогательного оборудования. 
-              Гарантия качества, техническая поддержка, быстрая доставка.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" className="gap-2">
-                <Icon name="ShoppingBag" size={20} />
-                Перейти в каталог
-              </Button>
-              <Button size="lg" variant="outline" className="gap-2">
-                <Icon name="Phone" size={20} />
-                Связаться с нами
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="catalog" className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Каталог оборудования</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Выберите категорию приборов и найдите подходящее оборудование
-            </p>
-          </div>
-
-          <div className="mb-8">
-            <div className="relative max-w-md mx-auto">
-              <Icon name="Search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-              <Input
-                type="text"
-                placeholder="Поиск по названию или описанию..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3 justify-center mb-12">
-            {productCategories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category.id)}
-                className="gap-2"
-              >
-                <Icon name={category.icon as any} size={18} />
-                {category.name}
-              </Button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product, index) => (
-              <Card 
-                key={product.id} 
-                className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-scale-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="relative h-56 bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                  {!product.inStock && (
-                    <Badge className="absolute top-4 right-4 bg-destructive">
-                      Нет в наличии
-                    </Badge>
-                  )}
-                  {product.inStock && (
-                    <Badge className="absolute top-4 right-4 bg-green-500">
-                      В наличии
-                    </Badge>
-                  )}
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid lg:grid-cols-[280px_1fr] gap-6">
+          <aside className="space-y-4">
+            <Card className="p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Icon name="Filter" size={18} />
+                Фильтры
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">Тип объявления</p>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox 
+                        checked={selectedType === 'all'} 
+                        onCheckedChange={() => setSelectedType('all')}
+                      />
+                      <span className="text-sm">Все</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox 
+                        checked={selectedType === 'product'} 
+                        onCheckedChange={() => setSelectedType('product')}
+                      />
+                      <span className="text-sm">Товары</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox 
+                        checked={selectedType === 'service'} 
+                        onCheckedChange={() => setSelectedType('service')}
+                      />
+                      <span className="text-sm">Услуги</span>
+                    </label>
+                  </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{product.name}</CardTitle>
-                  <CardDescription className="line-clamp-2">{product.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    {product.specs.map((spec, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-sm">
-                        <Icon name="Check" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{spec}</span>
-                      </div>
+
+                <Separator />
+
+                <div>
+                  <p className="text-sm font-medium mb-2">Категория</p>
+                  <div className="space-y-2">
+                    {categories.map(cat => (
+                      <label key={cat} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox 
+                          checked={selectedCategory === cat} 
+                          onCheckedChange={() => setSelectedCategory(cat)}
+                        />
+                        <span className="text-sm">{cat}</span>
+                      </label>
                     ))}
                   </div>
-                  <div className="text-3xl font-bold text-primary">{product.price}</div>
-                </CardContent>
-                <CardFooter className="gap-2">
-                  <Button className="flex-1 gap-2" disabled={!product.inStock}>
-                    <Icon name="ShoppingCart" size={18} />
-                    В корзину
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Icon name="Heart" size={18} />
-                  </Button>
-                </CardFooter>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10">
+              <Icon name="ShieldCheck" size={32} className="text-primary mb-2" />
+              <h3 className="font-semibold mb-1">Безопасная сделка</h3>
+              <p className="text-xs text-muted-foreground">
+                Проверяйте документы поверки и аккредитацию лабораторий
+              </p>
+            </Card>
+          </aside>
+
+          <main className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">
+                {filteredListings.length} {filteredListings.length === 1 ? 'объявление' : 'объявлений'}
+              </h2>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Icon name="SlidersHorizontal" size={16} className="mr-2" />
+                  Сортировка
+                </Button>
+              </div>
+            </div>
+
+            {filteredListings.length === 0 && (
+              <Card className="p-12 text-center">
+                <Icon name="SearchX" size={64} className="mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Ничего не найдено</h3>
+                <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
+              </Card>
+            )}
+
+            {filteredListings.map((listing) => (
+              <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="grid md:grid-cols-[200px_1fr] gap-4 p-4">
+                  <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-square md:aspect-auto">
+                    <img 
+                      src={listing.image} 
+                      alt={listing.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {listing.type === 'service' && (
+                      <Badge className="absolute top-2 left-2 bg-green-500">Услуга</Badge>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-semibold mb-1 hover:text-primary cursor-pointer">
+                            {listing.title}
+                          </h3>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
+                            <span className="flex items-center gap-1">
+                              <Icon name="MapPin" size={14} />
+                              {listing.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Icon name="Eye" size={14} />
+                              {listing.views}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Icon name="Clock" size={14} />
+                              {listing.postedDate}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-primary">{listing.price}</div>
+                          <Badge variant="outline" className="mt-1">{listing.category}</Badge>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {listing.description}
+                      </p>
+
+                      <div className="flex items-center gap-3 mb-3 pb-3 border-b">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={listing.seller.avatar} />
+                          <AvatarFallback>{listing.seller.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{listing.seller.name}</div>
+                          <div className="flex items-center gap-2">
+                            <StarRating rating={listing.seller.rating} />
+                            <span className="text-xs text-muted-foreground">
+                              {listing.seller.rating} ({listing.seller.reviewsCount})
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" className="gap-2">
+                            <Icon name="MessageCircle" size={16} />
+                            Написать
+                          </Button>
+                          <Button size="sm" variant="outline" className="gap-2">
+                            <Icon name="Phone" size={16} />
+                            Позвонить
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <button
+                          onClick={() => toggleReviews(listing.id)}
+                          className="flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                        >
+                          <Icon name="MessageSquare" size={16} />
+                          Отзывы ({listing.reviews.length})
+                          <Icon 
+                            name={expandedReviews.includes(listing.id) ? "ChevronUp" : "ChevronDown"} 
+                            size={16} 
+                          />
+                        </button>
+
+                        {expandedReviews.includes(listing.id) && (
+                          <div className="mt-3 space-y-3 pl-4 border-l-2 border-primary/20">
+                            {listing.reviews.map((review) => (
+                              <div key={review.id} className="bg-gray-50 rounded-lg p-3">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="w-8 h-8">
+                                    <AvatarImage src={review.avatar} />
+                                    <AvatarFallback>{review.author[0]}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-sm">{review.author}</span>
+                                      <span className="text-xs text-muted-foreground">{review.date}</span>
+                                    </div>
+                                    <StarRating rating={review.rating} />
+                                    <p className="text-sm text-muted-foreground mt-2">{review.text}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </Card>
             ))}
-          </div>
-
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12">
-              <Icon name="SearchX" size={64} className="mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-semibold mb-2">Ничего не найдено</h3>
-              <p className="text-muted-foreground">Попробуйте изменить категорию или поисковый запрос</p>
-            </div>
-          )}
+          </main>
         </div>
-      </section>
-
-      <section id="about" className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in">
-              <Badge className="mb-4">О нас</Badge>
-              <h2 className="text-4xl font-bold mb-6">15 лет на рынке измерительного оборудования</h2>
-              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                ИзмериТех — надежный поставщик измерительных приборов и вспомогательного оборудования 
-                для промышленных предприятий, лабораторий и сервисных центров.
-              </p>
-              <div className="space-y-4">
-                <div className="flex gap-4 items-start">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Icon name="Award" size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Сертифицированное оборудование</h3>
-                    <p className="text-muted-foreground">Все приборы проходят поверку и имеют сертификаты соответствия</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 items-start">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Icon name="Headphones" size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Техническая поддержка</h3>
-                    <p className="text-muted-foreground">Консультации специалистов и помощь в выборе оборудования</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 items-start">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Icon name="Truck" size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Быстрая доставка</h3>
-                    <p className="text-muted-foreground">Отправка заказов по всей России в течение 1-2 рабочих дней</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6 text-center">
-                <div className="text-4xl font-bold text-primary mb-2">15+</div>
-                <div className="text-muted-foreground">лет на рынке</div>
-              </Card>
-              <Card className="p-6 text-center">
-                <div className="text-4xl font-bold text-primary mb-2">500+</div>
-                <div className="text-muted-foreground">наименований</div>
-              </Card>
-              <Card className="p-6 text-center">
-                <div className="text-4xl font-bold text-primary mb-2">3000+</div>
-                <div className="text-muted-foreground">клиентов</div>
-              </Card>
-              <Card className="p-6 text-center">
-                <div className="text-4xl font-bold text-primary mb-2">24/7</div>
-                <div className="text-muted-foreground">поддержка</div>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="services" className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Наши услуги</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Комплексное обслуживание измерительного оборудования
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                <Icon name="ClipboardCheck" size={28} className="text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Поверка приборов</h3>
-              <p className="text-muted-foreground">
-                Поверка и калибровка измерительных приборов в аккредитованной лаборатории
-              </p>
-            </Card>
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                <Icon name="Wrench" size={28} className="text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Ремонт и обслуживание</h3>
-              <p className="text-muted-foreground">
-                Качественный ремонт и техническое обслуживание любой сложности
-              </p>
-            </Card>
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                <Icon name="GraduationCap" size={28} className="text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Обучение персонала</h3>
-              <p className="text-muted-foreground">
-                Проведение обучающих семинаров по работе с измерительным оборудованием
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section id="contacts" className="py-16 bg-gradient-to-br from-primary/5 to-secondary/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-4">Контакты</h2>
-              <p className="text-lg text-muted-foreground">
-                Свяжитесь с нами удобным способом
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-6">Наши контакты</h3>
-                <div className="space-y-4">
-                  <div className="flex gap-4 items-start">
-                    <Icon name="MapPin" className="text-primary mt-1" size={20} />
-                    <div>
-                      <div className="font-medium mb-1">Адрес</div>
-                      <div className="text-muted-foreground">г. Москва, ул. Измерительная, д. 15</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <Icon name="Phone" className="text-primary mt-1" size={20} />
-                    <div>
-                      <div className="font-medium mb-1">Телефон</div>
-                      <div className="text-muted-foreground">+7 (495) 123-45-67</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <Icon name="Mail" className="text-primary mt-1" size={20} />
-                    <div>
-                      <div className="font-medium mb-1">Email</div>
-                      <div className="text-muted-foreground">info@izmeriteh.ru</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <Icon name="Clock" className="text-primary mt-1" size={20} />
-                    <div>
-                      <div className="font-medium mb-1">Режим работы</div>
-                      <div className="text-muted-foreground">Пн-Пт: 9:00 - 18:00<br />Сб-Вс: выходной</div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-6">Напишите нам</h3>
-                <form className="space-y-4">
-                  <div>
-                    <Input placeholder="Ваше имя" />
-                  </div>
-                  <div>
-                    <Input type="email" placeholder="Email" />
-                  </div>
-                  <div>
-                    <Input type="tel" placeholder="Телефон" />
-                  </div>
-                  <div>
-                    <Input placeholder="Тема обращения" />
-                  </div>
-                  <Button className="w-full gap-2">
-                    <Icon name="Send" size={18} />
-                    Отправить сообщение
-                  </Button>
-                </form>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-foreground text-primary-foreground py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <Icon name="Gauge" size={28} />
-              <div>
-                <div className="font-bold">ИзмериТех</div>
-                <div className="text-sm opacity-80">Измерительное оборудование</div>
-              </div>
-            </div>
-            <div className="text-sm opacity-80 text-center md:text-right">
-              © 2024 ИзмериТех. Все права защищены.<br />
-              Профессиональное измерительное оборудование
-            </div>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
